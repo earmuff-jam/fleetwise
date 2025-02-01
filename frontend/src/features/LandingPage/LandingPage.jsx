@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useContext, useState } from 'react';
 
 import { Container, Stack } from '@mui/material';
 
@@ -11,14 +11,19 @@ import Signup from '@features/LandingPage/Authentication/Signup/Signup';
 import StyledAppBar from '@features/LandingPage/StyledAppBar/StyledAppBar';
 import { COLORS, MODAL_STATE, SAMPLE_DATA } from '@features/LandingPage/constants';
 import ForgotPassword from '@features/LandingPage/Authentication/ForgotPassword/ForgotPassword';
+import { PageContext } from '@src/ApplicationValidator';
 
 export default function LandingPage() {
+  const { setPage } = useContext(PageContext);
   const [modalState, setModalState] = useState(MODAL_STATE.NONE);
 
   const handleCloseModal = () => setModalState(MODAL_STATE.NONE);
   const openSignupModal = () => setModalState(MODAL_STATE.SIGN_UP);
   const openLoginModal = () => setModalState(MODAL_STATE.SIGN_IN);
+
   const handleForgotPasswordModal = () => setModalState(MODAL_STATE.FORGOT_PASSWORD);
+
+  const handlePageTransition = () => setPage('reset');
 
   const formattedData = SAMPLE_DATA.map((v, index) => ({
     label: v.name,
@@ -69,7 +74,7 @@ export default function LandingPage() {
             handleClose={handleCloseModal}
             maxSize="sm"
           >
-            <ForgotPassword handleClose={handleCloseModal} />
+            <ForgotPassword handleClose={handleCloseModal} handlePageTransition={handlePageTransition} />
           </SimpleModal>
         )}
       </Container>

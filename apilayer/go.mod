@@ -22,6 +22,7 @@ require (
 require (
 	github.com/davecgh/go-spew v1.1.2-0.20180830191138-d8f796af33cc // indirect
 	github.com/earmuff-jam/ciri-stormrider v1.0.5
+	github.com/earmuff-jam/ether v1.0.1
 	github.com/felixge/httpsnoop v1.0.4 // indirect
 	github.com/go-ini/ini v1.67.0 // indirect
 	github.com/hashicorp/logutils v1.0.0

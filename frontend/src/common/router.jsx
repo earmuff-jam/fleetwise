@@ -3,6 +3,7 @@ import { lazy } from 'react';
 import { createBrowserRouter } from 'react-router-dom';
 
 import Layout from '@features/Layout/Layout'; // can't lazy load this
+import ResetPassword from '@features/LandingPage/Authentication/ResetPassword/ResetPassword';
 
 const Overview = lazy(() => import('@features/Home/Overview'));
 const Reports = lazy(() => import('@features/Reports/Reports'));
@@ -71,5 +72,9 @@ export const router = createBrowserRouter([
         element: <RecentActivityList />,
       },
     ],
+  },
+  {
+    path: '/reset',
+    element: <ResetPassword />,
   },
 ]);

@@ -64,7 +64,7 @@ func main() {
 
 	router.HandleFunc("/api/v1/signin", handler.Signin).Methods("POST", "OPTIONS")
 	router.HandleFunc("/api/v1/isValidEmail", handler.IsValidUserEmail).Methods("POST")
-	router.HandleFunc("/api/v1/reset", handler.ResetPwd).Methods("POST")
+	router.HandleFunc("/api/v1/resetPassword", handler.ResetPassword).Methods("POST")
 	router.HandleFunc("/api/v1/logout", handler.Logout).Methods("GET", "OPTIONS")
 
 	// secure routes

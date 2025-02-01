@@ -69,7 +69,9 @@ export default function SignupFormFields({ formFields, setFormFields, isValidUse
         required={formFields['email'].required}
         fullWidth={formFields['email'].fullWidth}
         error={!!formFields['email'].errorMsg}
-        helperText={formFields['email'].errorMsg || SignupHelperText(isValidUserEmail, loading)}
+        helperText={
+          formFields['email'].errorMsg || <SignupHelperText isEmailUnique={isValidUserEmail} loading={loading} />
+        }
         onKeyDown={(e) => {
           if (e.code === 'Enter') {
             submit(e);

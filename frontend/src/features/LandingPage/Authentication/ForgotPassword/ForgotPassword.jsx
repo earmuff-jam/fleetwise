@@ -10,7 +10,7 @@ import { authActions } from '@features/LandingPage/authSlice';
 import { RESET_PASSWORD_FIELDS } from '@features/LandingPage/constants';
 import ForgotPasswordFormFields from '@features/LandingPage/Authentication/ForgotPassword/ForgotPasswordFormFields';
 
-export default function ForgotPassword({ handleClose }) {
+export default function ForgotPassword({ handleClose, handlePageTransition }) {
   const dispatch = useDispatch();
   const [formFields, setFormFields] = useState(RESET_PASSWORD_FIELDS);
 
@@ -62,6 +62,7 @@ export default function ForgotPassword({ handleClose }) {
       });
     }
     handleClose();
+    handlePageTransition();
   };
 
   return (

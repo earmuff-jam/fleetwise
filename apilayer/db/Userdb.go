@@ -1,6 +1,7 @@
 package db
 
 import (
+	"errors"
 	"time"
 
 	"github.com/earmuff-jam/fleetwise/config"
@@ -106,6 +107,98 @@ func RetrieveUser(user string, draftUser *model.UserCredentials) (*model.UserCre
 	draftUser.IsVerified = storedCredentials.IsVerified
 
 	return draftUser, nil
+}
+
+// RetrieveUserDetailsByEmailAddress ...
+//
+// Function is used to retrieve the userID for a selected email address. Supported only
+// for reset password workflow since the emailAddress is the only value that the audience has.
+func RetrieveUserDetailsByEmailAddress(user string, emailAddress string) (string, error) {
+	db, err := SetupDB(user)
+	if err != nil {
+		config.Log("unable to setup database", err)
+		return "", err
+	}
+	defer db.Close()
+
+	sqlStr := `SELECT id FROM auth.users WHERE email=$1;`
+
+	config.Log("SqlStr: %s", nil, sqlStr)
+	result := db.QueryRow(sqlStr, emailAddress)
+
+	var userID string
+	err = result.Scan(&userID)
+	if err != nil {
+		config.Log("unable to scan userID for the selected user", err)
+		return "", err
+	}
+
+	return userID, nil
+}
+
+// UpdateRecoveryToken...
+//
+// Function is used to update the recovery token to allow the user to reset
+// their forgotten password. Validation of time is done via /recovery api as
+// the token is again re-generated and validated against the timer. If the token
+// is different then the timer expired or the user is invalid user.
+func UpdateRecoveryToken(user string, userID string, generatedOTP string) error {
+
+	if len(generatedOTP) <= 0 {
+		config.Log("unable to update recovery token", errors.New(config.ErrorGeneratedOTPFailure))
+		return errors.New(config.ErrorGeneratedOTPFailure)
+	}
+
+	db, err := SetupDB(user)
+	if err != nil {
+		config.Log("unable to setup db", err)
+		return err
+	}
+	defer db.Close()
+
+	sqlStr := `SELECT EXISTS(SELECT 1 FROM auth.users u WHERE u.id=$1);`
+	config.Log("SqlStr: %s", nil, sqlStr)
+
+	result := db.QueryRow(sqlStr, userID)
+	exists := false
+	err = result.Scan(&exists)
+	if err != nil {
+		config.Log("unable to validate user id", err)
+		return err
+	}
+
+	if !exists {
+		config.Log("unable to find selected userID", errors.New(config.ErrorInvalidUserID))
+		return errors.New(config.ErrorInvalidUserID)
+	}
+
+	sqlStr = `UPDATE auth.users 
+	SET recovery_token=$2, recovery_sent_at=$3
+	WHERE id=$1;`
+
+	config.Log("SqlStr: %s", nil, sqlStr)
+
+	tx, err := db.Begin()
+	if err != nil {
+		tx.Rollback()
+		config.Log("unable to begin transaction", err)
+		return err
+	}
+	defer tx.Rollback()
+
+	_, err = tx.Exec(sqlStr, userID, generatedOTP, time.Now())
+
+	if err != nil {
+		config.Log("unable to execute update query", err)
+		return err
+	}
+
+	if err := tx.Commit(); err != nil {
+		config.Log("unable to commit transaction", err)
+		return err
+	}
+
+	return nil
 }
 
 // IsValidUserEmail ...

@@ -226,18 +226,18 @@ func IsValidUserEmail(rw http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(rw).Encode(resp)
 }
 
-// ResetPwd ...
-// swagger:route POST /api/v1/reset Authentication ResetPwd
+// ResetPassword ...
+// swagger:route POST /api/v1/resetPassword Authentication ResetPassword
 //
 // # Sends an email notification with email address in the jwt and token in the email address.
-// Use this token to reset password. Only verified email addresses can be reset.
+// Use this token to reset password.
 //
 // Responses:
 // 200: MessageResponse
 // 400: MessageResponse
 // 404: MessageResponse
 // 500: MessageResponse
-func ResetPwd(rw http.ResponseWriter, r *http.Request) {
+func ResetPassword(rw http.ResponseWriter, r *http.Request) {
 
 	draftUser := &model.UserResponse{}
 	err := json.NewDecoder(r.Body).Decode(draftUser)
@@ -249,14 +249,7 @@ func ResetPwd(rw http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if !draftUser.IsVerified {
-		config.Log("unable to reset password", errors.New("email address is not verified"))
-		rw.WriteHeader(http.StatusBadRequest)
-		json.NewEncoder(rw).Encode(err)
-		return
-	}
-
-	if len(draftUser.EmailAddress) <= 0 || len(draftUser.ID) <= 0 {
+	if len(draftUser.EmailAddress) <= 0 {
 		config.Log("unable to reset password", errors.New("missing required fields"))
 		rw.WriteHeader(http.StatusBadRequest)
 		json.NewEncoder(rw).Encode(err)
@@ -363,7 +356,8 @@ func VerifyEmailAddress(rw http.ResponseWriter, r *http.Request) {
 //
 // # Resets the token in the database and allows users to resend email in case the token
 // is incorrect or failed to reach the user. This route is kept under the secure route
-// because a user must be logged in before they can activate a verification token.
+// because a user must be logged in before they can activate a verification token. This is
+// used to validate user email address.
 //
 // Responses:
 // 200: MessageResponse

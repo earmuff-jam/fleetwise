@@ -54,6 +54,17 @@ export function* revalidateEmail(action) {
   }
 }
 
+export function* fetchResetPassword(action) {
+  try {
+    yield call(instance.post, `${BASEURL}/resetPassword`, {
+      ...action.payload,
+    });
+    yield put(authActions.resetPasswordSuccess());
+  } catch (e) {
+    yield put(authActions.resetPasswordFailure(e));
+  }
+}
+
 export function* fetchUserLogout() {
   try {
     const response = yield call(instance.get, `${BASEURL}/logout`);
@@ -71,6 +82,10 @@ export function* watchFetchUserSignup() {
   yield takeLatest('auth/getSignup', fetchUserSignup);
 }
 
+export function* watchFetchResetPassword() {
+  yield takeLatest('auth/resetPassword', fetchResetPassword);
+}
+
 export function* watchFetchIsValidUserEmail() {
   yield takeEvery(`auth/isValidUserEmail`, fetchIsValidUserEmail);
 }
@@ -86,6 +101,7 @@ export function* watchFetchUserLogout() {
 export default [
   watchFetchUserLogin,
   watchFetchUserSignup,
+  watchFetchResetPassword,
   watchFetchIsValidUserEmail,
   watchRvalidateEmail,
   watchFetchUserLogout,
